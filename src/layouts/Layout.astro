@@ -258,7 +258,7 @@ if (database.Icon && database.Icon.Type === 'file') {
     margin: 0;
     font-size: 0.85rem;
     color: #999;
-    line-height: 1.8rem;
+    line-height: 1.8;
   }
 
   mark {
@@ -267,14 +267,39 @@ if (database.Icon && database.Icon.Type === 'file') {
     background: rgba(247, 212, 255, 0.8);
   }
 
-  ol { color: #222; font-weight: 400; font-size: 0.9rem; line-height: 1.8rem; }
-  p, ul { color: #222; font-weight: 400; font-size: 1rem; line-height: 1.8rem; }
-  ul, ol { margin: 0; padding-inline-start: 1.5rem; }
+  /* 正文段落：舒适的行高和段落间距 */
+  p {
+    color: #1a1a1a;
+    font-size: 1.05rem;
+    line-height: 1.9;
+    margin: 0 0 1.1em 0;
+    font-weight: 400;
+  }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol {
+    color: #1a1a1a;
+    font-size: 1.05rem;
+    line-height: 1.9;
+    margin: 0 0 1.1em 0;
+    padding-inline-start: 1.5rem;
+  }
+  li { margin-bottom: 0.3em; }
+
+  /* 标题间距 */
+  h2, h3, h4, h5, h6 {
+    margin: 1.8em 0 0.6em 0;
+    line-height: 1.4;
+    color: #111;
+  }
+  h2 { font-size: 1.4rem; font-weight: 700; }
+  h3 { font-size: 1.2rem; font-weight: 600; }
+  h4 { font-size: 1.05rem; font-weight: 600; }
 
   pre { margin: 0; white-space: pre; tab-size: 2; }
   pre :global(code) { overflow: auto; -webkit-overflow-scrolling: touch; }
 
-  hr { display: block; height: 1px; border: 0; margin: 0.3rem 0; background-color: #eee; }
+  hr { display: block; height: 1px; border: 0; margin: 2rem 0; background-color: #eee; }
 
   code {
     font-size: 0.9rem;
@@ -293,7 +318,16 @@ if (database.Icon && database.Icon.Type === 'file') {
     border: 1px solid #e4e4e4;
     padding: 0.5rem 1rem;
     text-align: left;
-    line-height: 1.2rem;
+    line-height: 1.6;
   }
   table td::after { content: ''; display: inline-block; min-height: 0.9rem; }
+
+  /* 引用块 */
+  blockquote {
+    margin: 1.2em 0;
+    padding: 0.8em 1.2em;
+    border-left: 3px solid #ddd;
+    color: #555;
+    font-style: italic;
+  }
 </style>
