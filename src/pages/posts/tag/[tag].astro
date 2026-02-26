@@ -3,7 +3,6 @@ import type { SelectProperty } from '../../../lib/interfaces.ts'
 import { NUMBER_OF_POSTS_PER_PAGE } from '../../../server-constants.ts'
 import {
   getPostsByTag,
-  getRankedPosts,
   getAllTags,
   getNumberOfPagesByTag,
 } from '../../../lib/notion/client.ts'
@@ -16,8 +15,6 @@ import PostFeaturedImage from '../../../components/PostFeaturedImage.astro'
 import PostExcerpt from '../../../components/PostExcerpt.astro'
 import ReadMoreLink from '../../../components/ReadMoreLink.astro'
 import Pagination from '../../../components/Pagination.astro'
-import BlogPostsLink from '../../../components/BlogPostsLink.astro'
-import BlogTagsLink from '../../../components/BlogTagsLink.astro'
 import styles from '../../../styles/blog.module.css'
 import '../../../styles/notion-color.css'
 
@@ -28,22 +25,22 @@ export async function getStaticPaths() {
 
 const { tag } = Astro.params
 
-const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
+const [posts, numberOfPages] = await Promise.all([
   getPostsByTag(tag, NUMBER_OF_POSTS_PER_PAGE),
-  getRankedPosts(),
-  getAllTags(),
   getNumberOfPagesByTag(tag),
 ])
 
-const currentTag = posts[0].Tags.find((t) => t.name === tag)
+const currentTag = posts[0]?.Tags.find((t) => t.name === tag)
 ---
 
-<Layout title={`Posts in ${tag}`} path={`/posts/tag/${tag}`}>
+<Layout title={`${tag}`} path={`/posts/tag/${tag}`}>
   <div slot="main" class={styles.main}>
-    <header>
-      <div class="tag-container">
-        <span class={`tag ${currentTag.color}`}>{tag}</span>
-      </div>
+    <header class="tag-header">
+      <a href="/" class="back-link">← 全部文章</a>
+      <h1 class="tag-title">
+        {currentTag && <span class={`tag-badge ${currentTag.color}`}>{tag}</span>}
+        {!currentTag && tag}
+      </h1>
     </header>
 
     {
@@ -52,12 +49,16 @@ const currentTag = posts[0].Tags.find((t) => t.name === tag)
       ) : (
         posts.map((post) => (
           <div class={styles.post} key={post.Slug}>
-            <PostDate post={post} />
-            <PostTags post={post} />
-            <PostTitle post={post} />
-            <PostFeaturedImage post={post} />
-            <PostExcerpt post={post} />
-            <ReadMoreLink post={post} />
+            <div class={styles.postMeta}>
+              <PostDate post={post} />
+              <PostTags post={post} />
+              <PostTitle post={post} />
+              <PostExcerpt post={post} />
+              <ReadMoreLink post={post} />
+            </div>
+            <div class={styles.postImage}>
+              <PostFeaturedImage post={post} />
+            </div>
           </div>
         ))
       )
@@ -67,28 +68,36 @@ const currentTag = posts[0].Tags.find((t) => t.name === tag)
       <Pagination tag={tag} currentPage={1} numberOfPages={numberOfPages} />
     </footer>
   </div>
-
-  <div slot="aside" class={styles.aside}>
-    <BlogPostsLink heading="Recommended" posts={rankedPosts} />
-    <BlogTagsLink heading="Categories" tags={tags} />
-  </div>
 </Layout>
 
 <style>
-  .tag-container {
+  .tag-header {
+    margin-bottom: 40px;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.9rem;
+    color: #888;
+    text-decoration: none;
+    margin-bottom: 16px;
+    transition: color 0.15s;
+  }
+  .back-link:hover {
+    color: #333;
+  }
+
+  .tag-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111;
     margin: 0;
-    line-height: 1.3;
-    font-size: 1.2rem;
-    font-weight: normal;
   }
-  @media (max-width: 640px) {
-    .tag-container {
-      font-size: 1.15rem;
-    }
-  }
-  .tag-container span.tag {
-    border-radius: 4px;
-    padding: 3px 9px;
+
+  .tag-badge {
+    border-radius: 6px;
+    padding: 4px 12px;
     background: var(--tag-bg-light-gray);
+    font-size: 1.6rem;
   }
 </style>
