@@ -77,72 +77,32 @@ if (database.Icon && database.Icon.Type === 'file') {
   </head>
   <body>
     <GoogleAnalytics trackingId={PUBLIC_GA_TRACKING_ID} />
-    <div class="container">
-      <header>
-        {
-          coverImageURL && (
-            <div class="cover">
-              <img src={coverImageURL} alt="Site cover image" loading="lazy" />
-            </div>
-          )
-        }
-      </header>
 
-      <div>
-        <main>
-          <div class="content">
-            <header>
-              <h1>
-                <a href={getNavLink('/')}>
-                  {
-                    database.Icon && database.Icon.Type === 'emoji' ? (
-                      <>
-                        <span>{database.Icon.Emoji}</span>
-                        {database.Title}
-                      </>
-                    ) : database.Icon && database.Icon.Type === 'external' ? (
-                      <>
-                        <img src={database.Icon.Url} alt="Site icon image" />
-                        {database.Title}
-                      </>
-                    ) : database.Icon && database.Icon.Type === 'file' ? (
-                      <>
-                        <img
-                          src={customIconURL}
-                          class="custom-icon"
-                          alt="Site icon image"
-                        />
-                        {database.Title}
-                      </>
-                    ) : (
-                      database.Title
-                    )
-                  }
-                </a>
-              </h1>
-              <div class="description">
-                {database.Description}
-              </div>
-            </header>
-
-            <slot name="main" />
-
-            <footer>
-              <div>
-                <span>Powered by&nbsp;</span>
-                <a href="https://github.com/otoyo/astro-notion-blog"
-                  >astro-notion-blog</a
-                >
-              </div>
-            </footer>
-          </div>
-        </main>
-
-        <aside>
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <a href={getNavLink('/')} class="navbar-logo">
+          {
+            database.Icon && database.Icon.Type === 'emoji' ? (
+              <span class="navbar-icon">{database.Icon.Emoji}</span>
+            ) : database.Icon && database.Icon.Type === 'external' ? (
+              <img src={database.Icon.Url} alt="Site icon" class="navbar-icon-img" />
+            ) : null
+          }
+          <span class="navbar-title">{database.Title}</span>
+        </a>
+        <div class="navbar-right">
+          <a href="https://bangyin.me" class="navbar-link">主站</a>
           <SearchButton />
-          <slot name="aside" />
-        </aside>
+        </div>
       </div>
+    </nav>
+
+    <div class="page-container">
+      <slot name="main" />
+
+      <footer class="site-footer">
+        <p>© 2026 邦印 Bangyin · <a href="https://bangyin.me">bangyin.me</a></p>
+      </footer>
     </div>
 
     <SearchModal />
@@ -155,118 +115,84 @@ if (database.Icon && database.Icon.Type === 'file') {
 </html>
 
 <style>
-  .container {
-    min-height: 100vh;
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #0f0f0f;
+    border-bottom: 1px solid #222;
   }
 
-  .container > div {
+  .navbar-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
     display: flex;
-    max-width: 1280px;
-  }
-  @media (max-width: 640px) {
-    .container > div {
-      display: block;
-    }
-  }
-
-  main {
-    flex: 1;
-    order: 2;
+    align-items: center;
     justify-content: space-between;
   }
-  @media (max-width: 640px) {
-    main {
-      order: 1;
-    }
+
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+  .navbar-logo:hover {
+    color: #fff;
+    opacity: 0.85;
   }
 
-  aside {
-    order: 1;
-    width: 300px;
-    padding: 20px 20px;
-    background-color: #f4f4f4;
-  }
-  @media (max-width: 640px) {
-    aside {
-      order: 2;
-      width: 100%;
-    }
-  }
-
-  div.cover {
-  }
-  div.cover img {
-    display: block;
-    width: 100%;
-    height: 20vh;
-    object-fit: cover;
-    object-position: center 60%;
-  }
-
-  div.content {
-    padding: 20px 40px;
-  }
-  @media (max-width: 640px) {
-    div.content {
-      padding: 0 18px;
-    }
-  }
-
-  main header {
-    padding: 20px 0 20px;
-  }
-  main header h1 {
-    font-weight: 700;
-    color: #333;
-  }
-  main header h1 a {
-    display: block;
-    color: inherit;
-  }
-  main header h1 a:hover {
-    color: inherit;
-  }
-  main header h1 a span,
-  main header h1 a img {
-    display: inline-block;
+  .navbar-icon {
     font-size: 1.1em;
   }
-  main header h1 a span {
-    margin-right: 0.3em;
-    margin-left: -0.1rem;
-  }
-  main header h1 a img {
-    width: 1.2em;
-    height: 1.2em;
-    margin-right: 0.2em;
-    margin-left: -0.3rem;
-    vertical-align: sub;
-  }
-  main header h1 a img.custom-icon {
-    border-radius: var(--radius);
+  .navbar-icon-img {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
   }
 
-  main header div.description {
-    padding: 0.3rem 0 0.6rem;
-    font-size: 0.95rem;
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
   }
 
-  main footer {
-    margin: 30px 0 10px;
+  .navbar-link {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.15s;
+  }
+  .navbar-link:hover {
+    color: #fff;
+  }
+
+  .page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .site-footer {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid #eee;
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
+    color: #999;
   }
-  @media (max-width: 640px) {
-    main footer {
-      margin: 0 auto 30px;
-    }
+  .site-footer a {
+    color: #666;
+    text-decoration: none;
   }
-  main footer span {
-    color: #777;
-  }
-  main footer a {
-    color: inherit;
-    text-decoration: underline;
+  .site-footer a:hover {
+    color: #333;
   }
 </style>
 
@@ -278,14 +204,14 @@ if (database.Icon && database.Icon.Type === 'file') {
     --gap-double: 2rem;
 
     --bg: #fff;
-    --fg: #333;
-    --accents-1: #666;
+    --fg: #111;
+    --accents-1: #333;
     --accents-2: #666;
-    --accents-3: #666;
+    --accents-3: #999;
     --geist-foreground: #000;
     --geist-success: #690;
 
-    --radius: 4px;
+    --radius: 6px;
 
     --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
       'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
@@ -299,8 +225,7 @@ if (database.Icon && database.Icon.Type === 'file') {
     word-break: break-word;
   }
 
-  html,
-  body {
+  html, body {
     padding: 0;
     margin: 0;
     font-size: 16px;
@@ -308,31 +233,14 @@ if (database.Icon && database.Icon.Type === 'file') {
 
   body {
     min-height: 100vh;
-    background: var(--bg);
+    background: #fff;
     color: var(--fg);
-    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-      Helvetica, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
-      'Hiragino Sans GB', メイリオ, Meiryo, 'Apple Color Emoji', Arial,
-      sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
-
-    /*background-image: radial-gradient(#ddd 1px, transparent 1px),
-      radial-gradient(#ddd 1px, transparent 1px);*/
-    background-position: 0 0, 25px 25px;
-    background-attachment: fixed;
-    background-size: 50px 50px;
-
-    /* Hack */
-    overflow-x: hidden;
-
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+      Arial, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans GB',
+      sans-serif;
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
-  }
-
-  figure {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #999;
-    line-height: 1.8rem;
+    overflow-x: hidden;
   }
 
   a {
@@ -343,60 +251,30 @@ if (database.Icon && database.Icon.Type === 'file') {
     color: var(--accents-1);
   }
 
+  h1 { margin: 0; font-size: 2rem; font-weight: 700; color: var(--fg); }
+  @media (max-width: 640px) { h1 { font-size: 1.6rem; } }
+
+  figure {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #999;
+    line-height: 1.8rem;
+  }
+
   mark {
     padding: var(--gap-quarter);
     border-radius: var(--radius);
     background: rgba(247, 212, 255, 0.8);
   }
 
-  h1 {
-    margin: 0;
-    color: var(--fg);
-    font-size: 2rem;
-    font-weight: 700;
-  }
+  ol { color: #222; font-weight: 400; font-size: 0.9rem; line-height: 1.8rem; }
+  p, ul { color: #222; font-weight: 400; font-size: 1rem; line-height: 1.8rem; }
+  ul, ol { margin: 0; padding-inline-start: 1.5rem; }
 
-  @media (max-width: 640px) {
-    h1 {
-      font-size: 1.6rem;
-    }
-  }
+  pre { margin: 0; white-space: pre; tab-size: 2; }
+  pre :global(code) { overflow: auto; -webkit-overflow-scrolling: touch; }
 
-  ol {
-    color: #222;
-    font-weight: 400;
-    font-size: 0.9rem;
-    line-height: 1.8rem;
-  }
-  p,
-  ul {
-    color: #222;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 1.8rem;
-  }
-  ul,
-  ol {
-    margin: 0;
-    padding-inline-start: 1.5rem;
-  }
-  pre {
-    margin: 0;
-    white-space: pre;
-    tab-size: 2;
-  }
-  pre :global(code) {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    margin: 0.3rem 0;
-    background-color: #333;
-  }
+  hr { display: block; height: 1px; border: 0; margin: 0.3rem 0; background-color: #eee; }
 
   code {
     font-size: 0.9rem;
@@ -407,33 +285,15 @@ if (database.Icon && database.Icon.Type === 'file') {
     font-family: var(--font-mono);
   }
 
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-collapse: collapse;
-  }
-
-  table tr {
-    vertical-align: top;
-  }
-
-  table th {
-    font-weight: 600;
-    background-color: #f4f4f4;
-  }
-
-  table td,
-  table th {
+  table { display: block; overflow-x: auto; white-space: nowrap; border-collapse: collapse; }
+  table tr { vertical-align: top; }
+  table th { font-weight: 600; background-color: #f4f4f4; }
+  table td, table th {
     font-size: 0.9rem;
     border: 1px solid #e4e4e4;
     padding: 0.5rem 1rem;
     text-align: left;
     line-height: 1.2rem;
   }
-  table td::after {
-    content: '';
-    display: inline-block;
-    min-height: 0.9rem;
-  }
+  table td::after { content: ''; display: inline-block; min-height: 0.9rem; }
 </style>
