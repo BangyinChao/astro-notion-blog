@@ -3,11 +3,8 @@ import * as interfaces from '../../lib/interfaces.ts'
 import {
   getPosts,
   getAllPosts,
-  getRankedPosts,
   getPostBySlug,
-  getPostsByTag,
   getBlock,
-  getAllTags,
   getAllBlocksByBlockId,
   downloadFile,
 } from '../../lib/notion/client.ts'
@@ -22,9 +19,6 @@ import PostTags from '../../components/PostTags.astro'
 import PostTitle from '../../components/PostTitle.astro'
 import PostBody from '../../components/PostBody.astro'
 import PostRelativeLink from '../../components/PostRelativeLink.astro'
-import BlogPostsLink from '../../components/BlogPostsLink.astro'
-import BlogTagsLink from '../../components/BlogTagsLink.astro'
-import styles from '../../styles/blog.module.css'
 
 export async function getStaticPaths() {
   const posts = await getAllPosts()
@@ -38,27 +32,19 @@ if (!post) {
   throw new Error(`Post not found. slug: ${slug}`)
 }
 
-const [blocks, allPosts, rankedPosts, recentPosts, tags, postsHavingSameTag] =
-  await Promise.all([
-    getAllBlocksByBlockId(post.PageId),
-    getAllPosts(),
-    getRankedPosts(),
-    getPosts(5),
-    getAllTags(),
-    getPostsByTag(post.Tags[0]?.name, 6),
-  ])
+const [blocks, allPosts] = await Promise.all([
+  getAllBlocksByBlockId(post.PageId),
+  getAllPosts(),
+])
 
 const fileAtacchedBlocks = extractTargetBlocks('image', blocks)
   .concat(extractTargetBlocks('file', blocks))
   .filter((block) => {
-    if (!block) {
-      return false
-    }
+    if (!block) return false
     const imageOrFile = block.Image || block.File
     return imageOrFile && imageOrFile.File && imageOrFile.File.Url
   })
 
-// Download files
 await Promise.all(
   fileAtacchedBlocks
     .map(async (block) => {
@@ -99,29 +85,96 @@ if (post.FeaturedImage && post.FeaturedImage.Url) {
   path={getPostLink(post.Slug)}
   ogImage={ogImage}
 >
-  <div slot="main" class={styles.main}>
-    <div class={styles.post}>
-      <PostDate post={post} />
+  <article slot="main" class="article">
+    <header class="article-header">
       <PostTags post={post} />
       <PostTitle post={post} enableLink={false} />
+      <div class="article-meta">
+        <PostDate post={post} />
+      </div>
+    </header>
+
+    <div class="article-body">
       <PostBody blocks={blocks} />
-      <PostTags post={post} />
-
-      <footer>
-        <PostRelativeLink prevPost={prevPost} nextPost={nextPost} />
-      </footer>
     </div>
-  </div>
 
-  <div slot="aside" class="aside">
-    <BlogPostsLink
-      heading="Posts in the same category"
-      posts={postsHavingSameTag.filter(
-        (p: interfaces.Post) => p.Slug !== post.Slug
-      )}
-    />
-    <BlogPostsLink heading="Recommended" posts={rankedPosts} />
-    <BlogPostsLink heading="Latest posts" posts={recentPosts} />
-    <BlogTagsLink heading="Categories" tags={tags} />
-  </div>
+    <footer class="article-footer">
+      <PostRelativeLink prevPost={prevPost} nextPost={nextPost} />
+    </footer>
+  </article>
 </Layout>
+
+<style>
+  .article {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .article-header {
+    padding-bottom: 32px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 48px;
+  }
+
+  .article-header :global(.tags) {
+    margin-bottom: 16px;
+  }
+
+  .article-header :global(h1) {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #111;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .article-header :global(h1) {
+      font-size: 1.7rem;
+    }
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  .article-body {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: #222;
+  }
+
+  .article-body :global(h2) {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    color: #111;
+  }
+
+  .article-body :global(h3) {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2rem 0 0.75rem;
+    color: #111;
+  }
+
+  .article-body :global(p) {
+    margin: 0 0 1.4rem;
+  }
+
+  .article-body :global(img) {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+  }
+
+  .article-footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid #f0f0f0;
+  }
+</style>
